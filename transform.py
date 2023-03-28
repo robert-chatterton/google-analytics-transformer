@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 import uuid
+import argparse
 
 def gen_parse(filename: str):
     with open(filename) as open_file:
@@ -9,14 +10,18 @@ def gen_parse(filename: str):
         yield json.loads(line)
         line = open_file.readline()
  
-def transform_file(input: str, visits_output: str = 'visits.json', hits_output: str = 'hits.json') -> int:
+def transform_file(input: str, visits_output: str, hits_output: str) -> int:
   visits_output_file = open(visits_output, 'w')
+  print(f'Visits outputting to `{visits_output}`')
   hits_output_file = open(hits_output, 'w')
+  print(f'Hits outputting to `{hits_output}`')
   
   input_generator = gen_parse(input)
   line = next(input_generator)
   while line:
+    visit_id = str(uuid.uuid4())
     visit = {
+      'id': visit_id,
       'full_visitor_id': line['fullVisitorId'],
       'visit_id': line['visitId'],
       'visit_number': line['visitNumber'],
@@ -40,9 +45,10 @@ def transform_file(input: str, visits_output: str = 'visits.json', hits_output: 
       }
       hit_ids.append(hit_id)
       hits_output_file.write(f'{json.dumps(output_hit)}\n')
-    
+
     visit['hits'] = hit_ids
     visits_output_file.write(f'{json.dumps(visit)}\n')
+    
     try:
       line = next(input_generator)
     except StopIteration:
@@ -50,7 +56,23 @@ def transform_file(input: str, visits_output: str = 'visits.json', hits_output: 
   
   visits_output_file.close()
   hits_output_file.close()
-  return 0
+  print(f'Parsed `{input}`')
 
 if __name__ == '__main__':
-  transform_file('ga_sessions_20160801_(2)_(1)_(1)_(1).json')
+  parser = argparse.ArgumentParser(prog='Google Analytics Transformer - Housecall Pro Data Engineering Test')
+  parser.add_argument('filename')
+  parser.add_argument('--visits', help='output file for visit data')
+  parser.add_argument('--hits', help='output file for hit data')
+  args = parser.parse_args()
+
+  if (args.visits == None):
+    visits = 'visits.json'
+  else:
+    visits = args.visits
+    
+  if (args.hits == None):
+    hits = 'hits.json'
+  else:
+    hits = args.hits
+
+  transform_file(args.filename, visits_output=visits, hits_output=hits)

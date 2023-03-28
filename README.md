@@ -1,10 +1,19 @@
 # Google Analytics Transformer
 
-Housecall Pro DE 1 Take Home Exercise
+Housecall Pro Data Engineering Take Home Exercise
 
 Robert Chatterton
 Developed with Python 3.9.7
 
-Run `pip install -r requirements.txt`
+`python transform.py <filename>` outputs by default to `visits.json` and `hits.json`.
 
-`python main.py <filename>` outputs by default to `visits.json` and `hits.json`.
+### Sample
+
+For the sample file, unzip `ga_sessions_20160801.json.gz` to `ga_sessions_20160801.json`.
+
+Run `python transform.py ga_sessions_20160801.json`
+
+### Optional Arguments
+
+- `--visits` changes the output file for visit data
+- `--hits` changes the output file for hit data
